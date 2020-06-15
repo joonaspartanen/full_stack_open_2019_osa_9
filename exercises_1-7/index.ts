@@ -32,12 +32,8 @@ app.post('/exercises', (req, res) => {
 
     if ((req.body instanceof Object) && ('daily_exercises' in req.body) && ('target' in req.body)) {
         dailyExercises = req.body.daily_exercises;
-        target = req.body.target;
+        target = Number(req.body.target);
     } else {
-        return res.status(400).json({ 'error': 'parameters missing' });
-    }
-
-    if (dailyExercises === undefined || target === undefined) {
         return res.status(400).json({ 'error': 'parameters missing' });
     }
 
@@ -46,6 +42,10 @@ app.post('/exercises', (req, res) => {
     }
 
     if (isNaN(Number(target)) || dailyExercises.some(isNaN)) {
+        return res.status(400).json({ 'error': 'malformatted parameters' });
+    }
+
+    if (dailyExercises.length === 0) {
         return res.status(400).json({ 'error': 'malformatted parameters' });
     }
 
