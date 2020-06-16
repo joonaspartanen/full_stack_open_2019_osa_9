@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { NewPatient, Gender } from './types';
 
-const toNewPatient = (object: any): NewPatient => {
+const toNewPatient = (object: { name: string, dateOfBirth: string, ssn: string, gender: Gender, occupation: string; }): NewPatient => {
     const newPatient: NewPatient = {
         name: parseName(object.name),
         dateOfBirth: parseDate(object.dateOfBirth),
