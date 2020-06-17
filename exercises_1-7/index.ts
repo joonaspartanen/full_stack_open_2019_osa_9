@@ -27,34 +27,45 @@ app.get('/bmi', (req, res) => {
 
 app.post('/exercises', (req, res) => {
 
-    let dailyExercises: Array<number>;
-    let target: number;
+    const parseDailyExercises = (object: { dailyExercises: Array<number>; }) => {
+        if (!(req.body instanceof Object) || !('daily_exercises' in req.body)) {
+            throw new Error('parameters missing');
+        } else {
+            return object.dailyExercises;
+        }
+    };
 
-    if ((req.body instanceof Object) && ('daily_exercises' in req.body) && ('target' in req.body)) {
-        dailyExercises = req.body.daily_exercises;
-        target = Number(req.body.target);
-    } else {
-        return res.status(400).json({ 'error': 'parameters missing' });
+    const parseTarget = (object: { target: number; }): number => {
+        if (!(req.body instanceof Object) || !('target' in req.body)) {
+            throw new Error('parameters missing');
+        } else {
+            return object.target;
+        }
+    };
+
+    try {
+        const dailyExercises = parseDailyExercises(req.body);
+        const target = parseTarget(req.body);
+
+        if (!Array.isArray(dailyExercises)) {
+            return res.status(400).json({ 'error': 'malformatted parameters' });
+        }
+
+        if (isNaN(Number(target)) || dailyExercises.some(isNaN)) {
+            return res.status(400).json({ 'error': 'malformatted parameters' });
+        }
+
+        if (dailyExercises.length === 0) {
+            return res.status(400).json({ 'error': 'malformatted parameters' });
+        }
+
+        const result = calculateExercises(target, dailyExercises);
+
+        return res.send(result);
+    } catch (error) {
+        return res.status(400).send((error as Error).message);
     }
 
-    if (!Array.isArray(dailyExercises)) {
-        return res.status(400).json({ 'error': 'malformatted parameters' });
-    }
-
-    if (isNaN(Number(target)) || dailyExercises.some(isNaN)) {
-        return res.status(400).json({ 'error': 'malformatted parameters' });
-    }
-
-    if (dailyExercises.length === 0) {
-        return res.status(400).json({ 'error': 'malformatted parameters' });
-    }
-
-    console.log(dailyExercises);
-    console.log(target);
-
-    const result = calculateExercises(target, dailyExercises);
-
-    return res.send(result);
 });
 
 
