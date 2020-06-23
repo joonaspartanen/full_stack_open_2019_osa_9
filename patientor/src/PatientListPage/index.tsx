@@ -8,6 +8,8 @@ import { Patient } from "../types";
 import { apiBaseUrl } from "../constants";
 import HealthRatingBar from "../components/HealthRatingBar";
 import { useStateValue } from "../state";
+import { addPatient } from "../state/reducer";
+import { Link } from "react-router-dom";
 
 const PatientListPage: React.FC = () => {
   const [{ patients }, dispatch] = useStateValue();
@@ -24,11 +26,8 @@ const PatientListPage: React.FC = () => {
 
   const submitNewPatient = async (values: PatientFormValues) => {
     try {
-      const { data: newPatient } = await axios.post<Patient>(
-        `${apiBaseUrl}/patients`,
-        values
-      );
-      dispatch({ type: "ADD_PATIENT", payload: newPatient });
+      const { data: newPatient } = await axios.post<Patient>(`${apiBaseUrl}/patients`, values);
+      dispatch(addPatient(newPatient));
       closeModal();
     } catch (e) {
       console.error(e.response.data);
@@ -48,6 +47,7 @@ const PatientListPage: React.FC = () => {
             <Table.HeaderCell>Gender</Table.HeaderCell>
             <Table.HeaderCell>Occupation</Table.HeaderCell>
             <Table.HeaderCell>Health Rating</Table.HeaderCell>
+            <Table.HeaderCell></Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
@@ -58,6 +58,11 @@ const PatientListPage: React.FC = () => {
               <Table.Cell>{patient.occupation}</Table.Cell>
               <Table.Cell>
                 <HealthRatingBar showText={false} rating={1} />
+              </Table.Cell>
+              <Table.Cell>
+                <Button as={Link} to={`/patients/${patient.id}`}>
+                  Show details
+                </Button>
               </Table.Cell>
             </Table.Row>
           ))}
